@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Νησολόγιο — Island Log</title>
+</head>
+<body>
+<style>
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --ink: #E9E1CB;
+      --ink-soft: #AFA68C;
+      --paper: #0E2330;
+      --paper-raised: #16303F;
+      --paper-sunken: #0A1B26;
+      --line: #294453;
+      --sea: #75A5B2;
+      --sea-soft: #2F4F58;
+      --gold: #DDA945;
+      --gold-soft: #3E331B;
+      --coral: #DD7256;
+      --shadow: rgba(0,0,0,0.45);
+    }
+  }
+  :root {
+    --ink: #17303F;
+    --ink-soft: #5B6E63;
+    --paper: #ECE4D0;
+    --paper-raised: #F6F0DF;
+    --paper-sunken: #E2D9C0;
+    --line: #C9BC96;
+    --sea: #3E7186;
+    --sea-soft: #D3E0E1;
+    --gold: #A0721F;
+    --gold-soft: #E9D8AC;
+    --coral: #A8402A;
+    --shadow: rgba(23,48,63,0.14);
+
+    --font-display: 'Iowan Old Style', 'Palatino Linotype', Palatino, Georgia, serif;
+    --font-body: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    --font-mono: ui-monospace, 'SF Mono', 'Cascadia Code', Menlo, Consolas, monospace;
+  }
+  :root[data-theme="dark"] {
+    --ink: #E9E1CB;
+    --ink-soft: #AFA68C;
+    --paper: #0E2330;
+    --paper-raised: #16303F;
+    --paper-sunken: #0A1B26;
+    --line: #294453;
+    --sea: #75A5B2;
+    --sea-soft: #2F4F58;
+    --gold: #DDA945;
+    --gold-soft: #3E331B;
+    --coral: #DD7256;
+    --shadow: rgba(0,0,0,0.45);
+  }
+  :root[data-theme="light"] {
+    --ink: #17303F;
+    --ink-soft: #5B6E63;
+    --paper: #ECE4D0;
+    --paper-raised: #F6F0DF;
+    --paper-sunken: #E2D9C0;
+    --line: #C9BC96;
+    --sea: #3E7186;
+    --sea-soft: #D3E0E1;
+    --gold: #A0721F;
+    --gold-soft: #E9D8AC;
+    --coral: #A8402A;
+    --shadow: rgba(23,48,63,0.14);
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--font-body);
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+  }
+  ::selection { background: var(--gold-soft); }
+
+  .page {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 2.75rem 1.5rem 6rem;
+  }
+
+  /* ---------- Header ---------- */
+  header.masthead {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 1.5rem;
+    margin-bottom: 1.75rem;
+  }
+  .masthead-text .eyebrow {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--sea);
+    margin: 0 0 0.4rem;
+  }
+  h1 {
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: 2.5rem;
+    letter-spacing: 0.02em;
+    margin: 0 0 0.3rem;
+    text-wrap: balance;
+  }
+  .masthead-text p.sub {
+    font-size: 0.92rem;
+    color: var(--ink-soft);
+    margin: 0;
+    max-width: 40ch;
+  }
+  .compass {
+    flex-shrink: 0;
+    width: 64px;
+    height: 64px;
+    opacity: 0.85;
+  }
+  .compass circle, .compass line, .compass path {
+    stroke: var(--sea);
+    fill: none;
+  }
+  .compass .fill { fill: var(--gold); stroke: none; }
+
+  /* ---------- Stats strip ---------- */
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1px;
+    background: var(--line);
+    border: 1px solid var(--line);
+    margin-bottom: 1.75rem;
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .stat {
+    background: var(--paper-raised);
+    padding: 0.85rem 0.9rem;
+  }
+  .stat .n {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+    font-size: 1.5rem;
+    line-height: 1;
+    color: var(--ink);
+  }
+  .stat .n .of {
+    font-size: 0.95rem;
+    color: var(--ink-soft);
+  }
+  .stat .label {
+    font-size: 0.66rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--ink-soft);
+    margin-top: 0.35rem;
+  }
+  .progress-track {
+    height: 4px;
+    background: var(--paper-sunken);
+    border-radius: 2px;
+    overflow: hidden;
+    margin-bottom: 1.75rem;
+  }
+  .progress-fill {
+    height: 100%;
+    background: var(--gold);
+    transition: width 0.4s ease;
+  }
+
+  /* ---------- Search ---------- */
+  .search-row {
+    margin-bottom: 2rem;
+  }
+  input[type="text"], select {
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    color: var(--ink);
+    background: var(--paper-raised);
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    padding: 0.55rem 0.75rem;
+  }
+  input[type="text"]:focus, select:focus, button:focus-visible {
+    outline: 2px solid var(--sea);
+    outline-offset: 1px;
+  }
+  #search {
+    width: 100%;
+  }
+
+  /* ---------- Groups ---------- */
+  .group {
+    margin-bottom: 1.6rem;
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    background: var(--paper-raised);
+    overflow: hidden;
+  }
+  .group-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.85rem 1.1rem 0.7rem;
+    cursor: pointer;
+    user-select: none;
+  }
+  .group-head:hover { background: var(--paper-sunken); }
+  .group-title {
+    font-family: var(--font-display);
+    font-size: 1.15rem;
+  }
+  .group-title .gr {
+    font-family: var(--font-body);
+    font-size: 0.78rem;
+    color: var(--ink-soft);
+    margin-left: 0.5rem;
+  }
+  .group-count {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+    font-size: 0.78rem;
+    color: var(--ink-soft);
+    white-space: nowrap;
+  }
+  .group-count b { color: var(--gold); font-weight: 600; }
+  .group-bar {
+    height: 2px;
+    background: var(--paper-sunken);
+  }
+  .group-bar-fill {
+    height: 100%;
+    background: var(--sea);
+  }
+  .group-body { border-top: 1px solid var(--line); }
+  .group.collapsed .group-body { display: none; }
+  .group.collapsed .chevron { transform: rotate(-90deg); }
+  .chevron {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--sea);
+    display: inline-block;
+    transition: transform 0.15s ease;
+    margin-right: 0.4rem;
+  }
+
+  .island-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.55rem 1.1rem;
+    border-bottom: 1px solid var(--line);
+  }
+  .island-row:last-child { border-bottom: none; }
+  .island-row:hover { background: var(--paper-sunken); }
+
+  .dot-btn {
+    flex-shrink: 0;
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    border: 1.5px solid var(--sea);
+    background: transparent;
+    padding: 0;
+    cursor: pointer;
+  }
+  .dot-btn.on {
+    background: var(--gold);
+    border-color: var(--gold);
+  }
+
+  .island-name {
+    flex: 1;
+    min-width: 0;
+    font-size: 0.94rem;
+  }
+  .island-name .gr {
+    color: var(--ink-soft);
+    font-size: 0.82rem;
+    margin-left: 0.45rem;
+  }
+
+  .stepper {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-shrink: 0;
+  }
+  .stepper button {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    border: 1px solid var(--line);
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--font-body);
+    font-size: 0.95rem;
+    line-height: 1;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .stepper button:hover { border-color: var(--sea); color: var(--sea); }
+  .stepper button:disabled { opacity: 0.35; cursor: default; }
+  .stepper button:disabled:hover { border-color: var(--line); color: var(--ink); }
+  .stepper .count {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+    font-size: 0.85rem;
+    width: 1.4em;
+    text-align: center;
+    color: var(--ink-soft);
+  }
+  .stepper .count.visited { color: var(--gold); font-weight: 600; }
+
+  .no-match {
+    padding: 1.5rem;
+    text-align: center;
+    color: var(--ink-soft);
+    font-size: 0.88rem;
+    display: none;
+  }
+
+  /* ---------- Add custom ---------- */
+  .add-panel {
+    border: 1px dashed var(--line);
+    border-radius: 4px;
+    padding: 1rem 1.1rem;
+    margin-top: 2rem;
+  }
+  .add-panel h2 {
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: 1.05rem;
+    margin: 0 0 0.7rem;
+  }
+  .add-form {
+    display: flex;
+    gap: 0.55rem;
+    flex-wrap: wrap;
+  }
+  .add-form input[type="text"] { flex: 1; min-width: 140px; }
+  .add-form button {
+    font-family: var(--font-body);
+    font-size: 0.85rem;
+    background: var(--sea);
+    color: var(--paper-raised);
+    border: none;
+    border-radius: 3px;
+    padding: 0.55rem 1rem;
+    cursor: pointer;
+  }
+  .add-form button:hover { opacity: 0.9; }
+
+  footer.note {
+    margin-top: 2.5rem;
+    font-size: 0.78rem;
+    color: var(--ink-soft);
+    text-align: center;
+    line-height: 1.6;
+  }
+
+  @media (max-width: 480px) {
+    h1 { font-size: 2rem; }
+    .stats { grid-template-columns: repeat(2, 1fr); }
+    .compass { display: none; }
+  }
+</style>
+
+<div class="page">
+  <header class="masthead">
+    <div class="masthead-text">
+      <p class="eyebrow">Ελλάδα &middot; νησιά, νησίδες, βραχονησίδες</p>
+      <h1>Νησολόγιο</h1>
+      <p class="sub">A personal isolario — the old cartographers' book of islands — kept for the ones you've actually set foot on.</p>
+    </div>
+    <svg class="compass" viewBox="0 0 64 64">
+      <circle cx="32" cy="32" r="26"/>
+      <circle cx="32" cy="32" r="2" class="fill"/>
+      <line x1="32" y1="4" x2="32" y2="14"/>
+      <line x1="32" y1="50" x2="32" y2="60"/>
+      <line x1="4" y1="32" x2="14" y2="32"/>
+      <line x1="50" y1="32" x2="60" y2="32"/>
+      <path d="M32 12 L36 32 L32 52 L28 32 Z" class="fill" opacity="0.35"/>
+    </svg>
+  </header>
+
+  <div class="stats" id="stats"></div>
+  <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+
+  <div class="search-row">
+    <input type="text" id="search" placeholder="Search an island — e.g. Naxos, Χίος, Milos…" autocomplete="off">
+  </div>
+
+  <div id="groups"></div>
+  <p class="no-match" id="noMatch">No island matches that search.</p>
+
+  <div class="add-panel">
+    <h2>Add one not on the list</h2>
+    <div class="add-form">
+      <input type="text" id="customName" placeholder="Island or islet name">
+      <select id="customGroup"></select>
+      <button id="customAdd" type="button">Add</button>
+    </div>
+  </div>
+
+  <footer class="note">Kept only in this browser, on this device — nothing is sent anywhere.<br>Steppers count visits; the dot lights up gold the moment a count leaves zero.</footer>
+</div>
+
+<script>
+(function () {
+  var GROUPS = [
+    { id: 'ionian', en: 'Ionian Islands', gr: 'Ιόνια Νησιά', islands: [
+      ['Corfu','Κέρκυρα'],['Paxoi','Παξοί'],['Antipaxoi','Αντίπαξοι'],['Lefkada','Λευκάδα'],
+      ['Meganisi','Μεγανήσι'],['Kalamos','Κάλαμος'],['Kastos','Καστός'],['Ithaki','Ιθάκη'],
+      ['Kefalonia','Κεφαλονιά'],['Zakynthos','Ζάκυνθος'],['Strofades','Στροφάδες']
+    ]},
+    { id: 'saronic', en: 'Saronic Islands', gr: 'Σαρωνικός Κόλπος', islands: [
+      ['Salamina','Σαλαμίνα'],['Aegina','Αίγινα'],['Agkistri','Αγκίστρι'],['Poros','Πόρος'],
+      ['Hydra','Ύδρα'],['Spetses','Σπέτσες'],['Dokos','Δοκός'],['Fleves','Φλέβες']
+    ]},
+    { id: 'cyclades', en: 'Cyclades', gr: 'Κυκλάδες', islands: [
+      ['Andros','Άνδρος'],['Tinos','Τήνος'],['Mykonos','Μύκονος'],['Delos','Δήλος'],['Rineia','Ρήνεια'],
+      ['Syros','Σύρος'],['Paros','Πάρος'],['Antiparos','Αντίπαρος'],['Naxos','Νάξος'],
+      ['Iraklia','Ηρακλειά'],['Schinoussa','Σχοινούσα'],['Ano Koufonisi','Άνω Κουφονήσι'],
+      ['Kato Koufonisi','Κάτω Κουφονήσι'],['Donousa','Δονούσα'],['Amorgos','Αμοργός'],
+      ['Ios','Ίος'],['Sikinos','Σίκινος'],['Folegandros','Φολέγανδρος'],['Santorini','Θήρα'],
+      ['Thirasia','Θηρασιά'],['Anafi','Ανάφη'],['Milos','Μήλος'],['Kimolos','Κίμωλος'],
+      ['Polyaigos','Πολύαιγος'],['Serifos','Σέριφος'],['Sifnos','Σίφνος'],['Kythnos','Κύθνος'],
+      ['Kea','Κέα (Τζια)'],['Gyaros','Γυάρος']
+    ]},
+    { id: 'dodecanese', en: 'Dodecanese', gr: 'Δωδεκάνησα', islands: [
+      ['Rhodes','Ρόδος'],['Kastellorizo','Καστελλόριζο'],['Symi','Σύμη'],['Chalki','Χάλκη'],
+      ['Tilos','Τήλος'],['Nisyros','Νίσυρος'],['Kos','Κως'],['Pserimos','Ψέριμος'],
+      ['Kalymnos','Κάλυμνος'],['Telendos','Τέλενδος'],['Leros','Λέρος'],['Lipsi','Λειψοί'],
+      ['Arkoi','Αρκοί'],['Agathonisi','Αγαθονήσι'],['Patmos','Πάτμος'],['Astypalaia','Αστυπάλαια'],
+      ['Karpathos','Κάρπαθος'],['Kasos','Κάσος'],['Saria','Σαρία']
+    ]},
+    { id: 'north-aegean', en: 'North Aegean', gr: 'Βόρειο Αιγαίο', islands: [
+      ['Samos','Σάμος'],['Fournoi','Φούρνοι'],['Ikaria','Ικαρία'],['Chios','Χίος'],['Psara','Ψαρά'],
+      ['Antipsara','Αντίψαρα'],['Oinousses','Οινούσσες'],['Lesvos','Λέσβος'],['Lemnos','Λήμνος'],
+      ['Agios Efstratios','Άγιος Ευστράτιος'],['Thasos','Θάσος'],['Samothraki','Σαμοθράκη']
+    ]},
+    { id: 'sporades', en: 'Sporades', gr: 'Σποράδες', islands: [
+      ['Skiathos','Σκιάθος'],['Skopelos','Σκόπελος'],['Alonnisos','Αλόννησος'],['Peristera','Περιστέρα'],
+      ['Kyra Panagia','Κυρά Παναγιά'],['Piperi','Πιπέρι'],['Skyros','Σκύρος']
+    ]},
+    { id: 'crete', en: 'Crete & Satellites', gr: 'Κρήτη & Δορυφόροι', islands: [
+      ['Crete','Κρήτη'],['Gavdos','Γαύδος'],['Gavdopoula','Γαυδοπούλα'],['Chrysi','Χρυσή (Γαϊδουρονήσι)'],
+      ['Koufonisi (Crete)','Κουφονήσι Λασιθίου'],['Dionysades','Διονυσάδες'],['Spinalonga','Σπιναλόγκα'],
+      ['Dia','Δία'],['Elafonisi islet','Ελαφονήσι']
+    ]},
+    { id: 'evia', en: 'Evia & Gulf', gr: 'Εύβοια & Κόλπος', islands: [
+      ['Evia','Εύβοια'],['Skyropoula','Σκυροπούλα']
+    ]},
+    { id: 'halkidiki', en: 'Halkidiki / Thermaic', gr: 'Χαλκιδική', islands: [
+      ['Ammouliani','Αμμουλιανή'],['Diaporos','Διάπορος'],['Drenia Islets','Δρένια']
+    ]},
+    { id: 'other', en: 'Lakonia & Scattered', gr: 'Λακωνία & Διάσπαρτα', islands: [
+      ['Kythira','Κύθηρα'],['Antikythira','Αντικύθηρα'],['Elafonisos','Ελαφόνησος'],
+      ['Trizonia','Τριζόνια'],['Spetsopoula','Σπετσοπούλα']
+    ]}
+  ];
+
+  var STORAGE_KEY = 'isolario-v1';
+
+  function slugify(s) {
+    return s.toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+  }
+
+  function loadState() {
+    try {
+      var raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) return JSON.parse(raw);
+    } catch (e) {}
+    return { counts: {}, custom: [] };
+  }
+  function saveState() {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (e) {}
+  }
+
+  var state = loadState();
+  if (!state.counts) state.counts = {};
+  if (!state.custom) state.custom = [];
+
+  // merge custom islands into groups
+  state.custom.forEach(function (c) {
+    var g = GROUPS.filter(function (g) { return g.id === c.groupId; })[0];
+    if (g) g.islands.push([c.en, c.gr || '']);
+  });
+
+  var groupsEl = document.getElementById('groups');
+  var statsEl = document.getElementById('stats');
+  var progressFill = document.getElementById('progressFill');
+  var searchEl = document.getElementById('search');
+  var noMatchEl = document.getElementById('noMatch');
+  var customGroupSel = document.getElementById('customGroup');
+
+  GROUPS.forEach(function (g) {
+    var opt = document.createElement('option');
+    opt.value = g.id;
+    opt.textContent = g.en + ' — ' + g.gr;
+    customGroupSel.appendChild(opt);
+  });
+
+  function countFor(id) { return state.counts[id] || 0; }
+
+  function render() {
+    groupsEl.innerHTML = '';
+    var totalIslands = 0, totalVisited = 0, totalVisits = 0, revisited = 0;
+
+    GROUPS.forEach(function (g) {
+      var groupEl = document.createElement('div');
+      groupEl.className = 'group';
+
+      var gVisited = 0;
+      var rowsHtml = '';
+
+      g.islands.forEach(function (pair) {
+        var en = pair[0], gr = pair[1];
+        var id = g.id + ':' + slugify(en);
+        var c = countFor(id);
+        totalIslands++;
+        if (c > 0) { totalVisited++; gVisited++; }
+        if (c > 1) revisited++;
+        totalVisits += c;
+      });
+
+      var pct = g.islands.length ? Math.round(100 * gVisited / g.islands.length) : 0;
+
+      groupEl.innerHTML =
+        '<div class="group-head" data-toggle="' + g.id + '">' +
+          '<div class="group-title"><span class="chevron">▾</span>' + en_escape(g.en) + '<span class="gr">' + en_escape(g.gr) + '</span></div>' +
+          '<div class="group-count"><b>' + gVisited + '</b> / ' + g.islands.length + '</div>' +
+        '</div>' +
+        '<div class="group-bar"><div class="group-bar-fill" style="width:' + pct + '%"></div></div>' +
+        '<div class="group-body"></div>';
+
+      function en_escape(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;'); }
+
+      var bodyEl = groupEl.querySelector('.group-body');
+      g.islands.forEach(function (pair) {
+        var en = pair[0], gr = pair[1];
+        var id = g.id + ':' + slugify(en);
+        var c = countFor(id);
+        var row = document.createElement('div');
+        row.className = 'island-row';
+        row.dataset.name = (en + ' ' + gr).toLowerCase();
+        row.innerHTML =
+          '<button class="dot-btn' + (c > 0 ? ' on' : '') + '" data-id="' + id + '" aria-label="Toggle visited"></button>' +
+          '<div class="island-name">' + escHtml(en) + '<span class="gr">' + escHtml(gr) + '</span></div>' +
+          '<div class="stepper">' +
+            '<button data-act="minus" data-id="' + id + '" ' + (c === 0 ? 'disabled' : '') + '>−</button>' +
+            '<span class="count' + (c > 0 ? ' visited' : '') + '" data-count="' + id + '">' + c + '</span>' +
+            '<button data-act="plus" data-id="' + id + '">+</button>' +
+          '</div>';
+        bodyEl.appendChild(row);
+      });
+
+      groupsEl.appendChild(groupEl);
+    });
+
+    function escHtml(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;'); }
+
+    var pctAll = totalIslands ? Math.round(100 * totalVisited / totalIslands) : 0;
+    statsEl.innerHTML =
+      '<div class="stat"><div class="n">' + totalVisited + '<span class="of"> / ' + totalIslands + '</span></div><div class="label">Islands visited</div></div>' +
+      '<div class="stat"><div class="n">' + totalVisits + '</div><div class="label">Total visits</div></div>' +
+      '<div class="stat"><div class="n">' + revisited + '</div><div class="label">Visited &gt;1×</div></div>' +
+      '<div class="stat"><div class="n">' + pctAll + '%</div><div class="label">Charted</div></div>';
+    progressFill.style.width = pctAll + '%';
+
+    applySearch();
+  }
+
+  function setCount(id, n) {
+    n = Math.max(0, n);
+    if (n === 0) delete state.counts[id]; else state.counts[id] = n;
+    saveState();
+    render();
+    searchEl.focus({ preventScroll: true });
+  }
+
+  groupsEl.addEventListener('click', function (e) {
+    var toggleHead = e.target.closest('[data-toggle]');
+    if (toggleHead) {
+      toggleHead.closest('.group').classList.toggle('collapsed');
+      return;
+    }
+    var dot = e.target.closest('.dot-btn');
+    if (dot) {
+      var id = dot.dataset.id;
+      setCount(id, countFor(id) > 0 ? 0 : 1);
+      return;
+    }
+    var btn = e.target.closest('button[data-act]');
+    if (btn) {
+      var id2 = btn.dataset.id;
+      var cur = countFor(id2);
+      setCount(id2, btn.dataset.act === 'plus' ? cur + 1 : cur - 1);
+    }
+  });
+
+  function applySearch() {
+    var q = searchEl.value.trim().toLowerCase();
+    var anyVisible = false;
+    document.querySelectorAll('.group').forEach(function (g) {
+      var rows = g.querySelectorAll('.island-row');
+      var groupHasMatch = false;
+      rows.forEach(function (r) {
+        var match = !q || r.dataset.name.indexOf(q) !== -1;
+        r.style.display = match ? '' : 'none';
+        if (match) groupHasMatch = true;
+      });
+      g.style.display = groupHasMatch ? '' : 'none';
+      if (groupHasMatch) {
+        anyVisible = true;
+        if (q) g.classList.remove('collapsed');
+      }
+    });
+    noMatchEl.style.display = anyVisible ? 'none' : 'block';
+  }
+
+  searchEl.addEventListener('input', applySearch);
+
+  document.getElementById('customAdd').addEventListener('click', function () {
+    var nameEl = document.getElementById('customName');
+    var name = nameEl.value.trim();
+    if (!name) { nameEl.focus(); return; }
+    var groupId = customGroupSel.value;
+    var g = GROUPS.filter(function (g) { return g.id === groupId; })[0];
+    g.islands.push([name, '']);
+    state.custom.push({ en: name, gr: '', groupId: groupId });
+    saveState();
+    nameEl.value = '';
+    render();
+  });
+
+  render();
+})();
+</script>
+</body>
+</html>
