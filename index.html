@@ -7,22 +7,6 @@
 </head>
 <body>
 <style>
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --ink: #E9E1CB;
-      --ink-soft: #AFA68C;
-      --paper: #0E2330;
-      --paper-raised: #16303F;
-      --paper-sunken: #0A1B26;
-      --line: #294453;
-      --sea: #75A5B2;
-      --sea-soft: #2F4F58;
-      --gold: #DDA945;
-      --gold-soft: #3E331B;
-      --coral: #DD7256;
-      --shadow: rgba(0,0,0,0.45);
-    }
-  }
   :root {
     --ink: #17303F;
     --ink-soft: #5B6E63;
@@ -40,6 +24,22 @@
     --font-display: 'Iowan Old Style', 'Palatino Linotype', Palatino, Georgia, serif;
     --font-body: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
     --font-mono: ui-monospace, 'SF Mono', 'Cascadia Code', Menlo, Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ink: #E9E1CB;
+      --ink-soft: #AFA68C;
+      --paper: #0E2330;
+      --paper-raised: #16303F;
+      --paper-sunken: #0A1B26;
+      --line: #294453;
+      --sea: #75A5B2;
+      --sea-soft: #2F4F58;
+      --gold: #DDA945;
+      --gold-soft: #3E331B;
+      --coral: #DD7256;
+      --shadow: rgba(0,0,0,0.45);
+    }
   }
   :root[data-theme="dark"] {
     --ink: #E9E1CB;
